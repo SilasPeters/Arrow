@@ -10,6 +10,9 @@ $digit = 0-9
 $letter = [a-zA-Z]
 
 tokens :-
+  $white+                  ;
+  \-\-[^\n]*               ;
+
   \-\>                     { const TArrow }
   \.                       { const TDot }
   \,                       { const TComma }
@@ -37,6 +40,4 @@ tokens :-
   \_                       { const TUnderscore }
 
   [$letter $digit \+ \-]+  { TIdent }
-
-  _                        { const (TIdent "_") }
 
