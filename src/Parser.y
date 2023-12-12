@@ -62,9 +62,9 @@ Cmd :: { Command }
     | ident { CIdent $1 }
 
 Dir :: { Dir }
-    : left { Left }
-    | right { Right }
-    | front { Front }
+    : left { DLeft }
+    | right { DRight }
+    | front { DFront }
 
 Alts :: { [Alt] }
      : {- empty -}  { [] }

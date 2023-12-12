@@ -21,7 +21,7 @@ data Command = CGo | CTake | CMark | CNothing
              | CIdent String
   deriving Show
 
-data Dir = Left | Right | Front
+data Dir = DLeft | DRight | DFront
   deriving Show
 
 data Alt = Alt Pat [Command]
