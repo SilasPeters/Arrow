@@ -4,8 +4,10 @@ import Model
 
 
 -- Exercise 5
-type Algebra = ()
-fold = undefined
+type Algebra r = ([Rule] -> r)
+
+fold :: Algebra r -> Program -> r
+fold (program) (Program rs) = program rs;
 
 
 
