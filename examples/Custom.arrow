@@ -1,0 +1,11 @@
+start   -> turn right, go, turn left, return. -- This is a comment!
+
+doGo -> go, go, go.
+
+empty ->.
+
+-- The method below is beautiful
+return  -> case front of
+             Boundary  ->  nothing;
+             _         ->  go, return
+           end.
