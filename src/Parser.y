@@ -52,16 +52,16 @@ Cmds :: { [Command] }
      | Cmds ',' Cmd { $3 : $1 }
 
 Cmd :: { Command }
-    : go   { CGo }
-    | take { CTake }
-    | mark { CMark }
-    | nothing { CNothing }
-    | turn Dir { CTurn $2 }
-    | case Dir Alts { CCase $2 $3 }
-    | ident { CIdent $1 }
+    : go                   { CGo }
+    | take                 { CTake }
+    | mark                 { CMark }
+    | nothing              { CNothing }
+    | turn Dir             { CTurn $2 }
+    | case Dir of Alts end { CCase $2 $4 }
+    | ident                { CIdent $1 }
 
 Dir :: { Dir }
-    : left { DLeft }
+    : left  { DLeft }
     | right { DRight }
     | front { DFront }
 
@@ -83,6 +83,6 @@ Pat :: { Pat }
 
 {
 
-happyError _ = error "parse error"
+happyError tks = error $ "parse error: " ++ show tks
 
 }
