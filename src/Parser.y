@@ -2,7 +2,6 @@
 module Parser where
 
 import Model
-import Prelude hiding ( Left, Right )
 }
 
 %name parser

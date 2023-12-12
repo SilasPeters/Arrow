@@ -1,6 +1,8 @@
 module Algebra where
 
 import Model
+import Data.List ( find )
+import Data.Maybe ( isJust )
 
 import Prelude hiding ( take )
 
@@ -39,7 +41,7 @@ data DirAlgebra r = DirAlgebra { left :: r
                                , front :: r }
 
 foldDir :: DirAlgebra r -> Dir -> r
-foldDir alg DLeft = left alg
+foldDir alg DLeft  = left alg
 foldDir alg DRight = right alg
 foldDir alg DFront = front alg
 
@@ -52,22 +54,47 @@ data PatAlgebra r = PatAlgebra { empty :: r
                                , lambda :: r
                                , debris :: r
                                , astroid :: r
-                               , boundary  :: r
+                               , boundary :: r
                                , underscore :: r }
 
 foldPat :: PatAlgebra r -> Pat -> r
-foldPat alg PEmpty = empty alg
-foldPat alg PLambda = lambda alg
-foldPat alg PDebris = debris alg
-foldPat alg PAstroid = astroid alg
-foldPat alg PBoundary = boundary alg
+foldPat alg PEmpty      = empty alg
+foldPat alg PLambda     = lambda alg
+foldPat alg PDebris     = debris alg
+foldPat alg PAstroid    = astroid alg
+foldPat alg PBoundary   = boundary alg
 foldPat alg PUnderscore = underscore alg
 
-noUndefinedRulesAlgebra :: ProgramAlgebra Bool
-noUndefinedRulesAlgebra = undefined
 
-noUndefinedRules :: [Rule] -> Bool
-noUndefinedRules rules = foldProgram noUndefinedRulesAlgebra rules
+
+noCallsToUndefinedRulesAlgebra :: ProgramAlgebra Bool
+noCallsToUndefinedRulesAlgebra = undefined
+
+noCallsToUndefinedRules :: Program -> Bool
+noCallsToUndefinedRules = undefined
+
+uniqueRulesAlgebra :: ProgramAlgebra Bool
+uniqueRulesAlgebra = go []
+  where
+    go :: [String] -> ProgramAlgebra Bool
+    go _  []     = True
+    go ac (r:rs) | name r `elem` ac = False
+                 | otherwise = go (name r:ac) rs
+
+uniqueRules :: Program -> Bool
+uniqueRules = foldProgram uniqueRulesAlgebra
+
+startRuleExistsAlgebra :: ProgramAlgebra Bool
+startRuleExistsAlgebra = isJust . find ((==) "start" . name)
+
+startRuleExists :: Program -> Bool
+startRuleExists = foldProgram startRuleExistsAlgebra
+
+caseExpressionsExhaustedAlgebra :: CommandAlgebra Bool
+caseExpressionsExhaustedAlgebra = undefined
+
+caseExpressionsExhausted :: Command -> Bool
+caseExpressionsExhausted = undefined
 
 checkProgram :: Program -> Bool
-checkProgram = 
+checkProgram = undefined

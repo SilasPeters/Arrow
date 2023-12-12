@@ -13,7 +13,8 @@ data Token = TArrow | TDot | TComma
 newtype Program = Program [Rule]
   deriving Show
 
-data Rule = Rule String [Command]
+data Rule = Rule { name :: String
+                 , cmds :: [Command] }
   deriving Show
 
 data Command = CGo | CTake | CMark | CNothing
