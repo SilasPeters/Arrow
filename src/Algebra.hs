@@ -19,13 +19,15 @@ type RuleAlgebra r = String -> [Command] -> r
 foldRule :: RuleAlgebra r -> Rule -> r
 foldRule alg (Rule s cmds) = alg s cmds
 
-data CommandAlgebra r = CommandAlgebra { go :: r
-                                       , take :: r
-                                       , mark :: r
-                                       , nothing :: r
-                                       , turn :: Dir -> r
-                                       , goCase :: Dir -> [Alt] -> r
-                                       , ident :: String -> r }
+data CommandAlgebra r = CommandAlgebra { 
+   go :: r
+  ,take :: r
+  ,mark :: r
+  ,nothing :: r
+  ,turn :: Dir -> r
+  ,goCase :: Dir -> [Alt] -> r
+  ,ident :: String -> r 
+  }
 
 foldCommand :: CommandAlgebra r -> Command -> r
 foldCommand alg CGo              = go alg
@@ -36,9 +38,11 @@ foldCommand alg (CTurn dir)      = turn alg dir
 foldCommand alg (CCase dir alts) = goCase alg dir alts
 foldCommand alg (CIdent s)       = ident alg s
 
-data DirAlgebra r = DirAlgebra { left :: r
-                               , right :: r
-                               , front :: r }
+data DirAlgebra r = DirAlgebra { 
+   left :: r
+  ,right :: r
+  ,front :: r 
+  }
 
 foldDir :: DirAlgebra r -> Dir -> r
 foldDir alg DLeft  = left alg
@@ -50,12 +54,14 @@ type Altgebra r = Pat -> [Command] -> r
 foldAlt :: Altgebra r -> Alt -> r
 foldAlt alg (Alt pat cmds) = alg pat cmds
 
-data PatAlgebra r = PatAlgebra { empty :: r
-                               , lambda :: r
-                               , debris :: r
-                               , astroid :: r
-                               , boundary :: r
-                               , underscore :: r }
+data PatAlgebra r = PatAlgebra { 
+    empty :: r
+   ,lambda :: r
+   ,debris :: r
+   ,astroid :: r
+   ,boundary :: r
+   ,underscore :: r 
+   }
 
 foldPat :: PatAlgebra r -> Pat -> r
 foldPat alg PEmpty      = empty alg
