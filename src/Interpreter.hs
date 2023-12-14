@@ -6,7 +6,7 @@ import Prelude hiding ((<$), ($>), (<*), (*>), sequence)
 import Data.Map (Map)
 import qualified Data.Map as L
 
-import Data.Char (isSpace, GeneralCategory (Space))
+import Data.Char (isSpace)
 import Control.Monad (replicateM)
 
 import Lexer
