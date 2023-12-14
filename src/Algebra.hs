@@ -12,6 +12,21 @@ type ProgramAlgebra r = [Rule] -> r
 foldProgram :: ProgramAlgebra r -> Program -> r
 foldProgram alg (Program rs) = alg rs;
 
+data ProgramAlgebra' p r c a = Prog {
+    aRules :: [r] -> p
+  , aRule :: String -> c -> r
+  , aCommands :: [c] -> c
+  , aCommand :: Command -> c
+  , aCase :: Dir -> a -> a -> c
+  , aAlts :: [a] -> a
+  , aAlt :: Pat -> c -> a
+  }
+
+
+
+
+
+
 -- Exercise 6
 
 type RuleAlgebra r = String -> [Command] -> r

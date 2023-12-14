@@ -6,7 +6,7 @@ import Prelude hiding ((<$), ($>), (<*), (*>), sequence)
 import Data.Map (Map)
 import qualified Data.Map as L
 
-import Data.Char (isSpace)
+import Data.Char (isSpace, GeneralCategory (Space))
 import Control.Monad (replicateM)
 
 import Lexer
@@ -51,6 +51,12 @@ contentsTable =  [ (Empty   , '.' )
                  , (Asteroid, 'O' )
                  , (Boundary, '#' )]
 
+
+testParseSpace :: IO()
+testParseSpace = do 
+  file <- readFile ".\\examples\\Maze.space"
+  print file
+  return ()
 
 -- Exercise 7
 printSpace :: Space -> String
