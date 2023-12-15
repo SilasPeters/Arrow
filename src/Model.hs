@@ -29,5 +29,5 @@ data Alt = Alt Pat [Command]
   deriving Show
 
 data Pat = PEmpty | PLambda | PDebris | PAstroid | PBoundary | PUnderscore
-  deriving Show
+  deriving (Eq, Show)
 
