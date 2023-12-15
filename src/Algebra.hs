@@ -5,6 +5,7 @@ import Data.List ( find )
 import Data.Maybe ( isJust )
 
 import Prelude hiding ( take )
+import Text.Printf (FormatParse(fpChar))
 
 -- Exercise 5
 type ProgramAlgebra r = [Rule] -> r
@@ -13,16 +14,26 @@ foldProgram :: ProgramAlgebra r -> Program -> r
 foldProgram alg (Program rs) = alg rs;
 
 data ProgramAlgebra' p r c a = Prog {
-    aRules :: [r] -> p
+    aProgram :: [r] -> p
   , aRule :: String -> c -> r
   , aCommands :: [c] -> c
+  , aCase :: Dir -> a -> c
   , aCommand :: Command -> c
-  , aCase :: Dir -> a -> a -> c
   , aAlts :: [a] -> a
   , aAlt :: Pat -> c -> a
   }
 
 
+foldProgram' :: ProgramAlgebra' p r c a -> Program -> p
+foldProgram' (Prog aprogram arule acommands acase acommand aalts aalt) = fp 
+  where 
+    fp (Program rs) = aprogram (frs rs)
+    frs = map (\(Rule n cs) -> arule n (fcs cs))
+    fcs cs = acommands (map fc cs)
+    fc (CCase d as) = acase d (fas as)
+    fc c = acommand c
+    fas as = aalts (map fa as)
+    fa (Alt p cs) = aalt p (fcs cs)
 
 
 
