@@ -105,7 +105,7 @@ toEnvironment s = if checkProgram program
   then
     foldProgram' getEnvironmentAlgebra program
   else
-    undefined -- er staat niet in de opdracht beschreven wat moet gebeuren als de check niet wordt gehaald
+    undefined -- The assignment does not specify what to do in this case
   where
     program = readProgram s
 
