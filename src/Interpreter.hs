@@ -122,7 +122,7 @@ getEnvironmentAlgebra = Prog
 
 
 readProgram :: String -> Program
-readProgram = undefined
+readProgram = Program . parser . alexScanTokens
 
 -- | Exercise 9
 headingToPos h = case h of
