@@ -37,6 +37,7 @@ data ProgramAlgebra' p r c a = Prog {
   , aAlt :: Pat -> c -> a
   }
 
+
 -- Exercise 6
 
 checkProgram :: Program -> Bool
