@@ -45,7 +45,7 @@ parseSpace = do
     spaces = greedy (satisfy isSpace)
 
     contents :: Parser Char Contents
-    contents = choice (Prelude.map (\(f,c) -> f <$ symbol c) contentsTable)
+    contents = choice (map (\(f,c) -> f <$ symbol c) contentsTable)
       <* spaces
 
 
@@ -68,7 +68,7 @@ testParseSpace :: IO()
 testParseSpace = do
   file <- readFile ".\\examples\\Maze.space"
   let space = fst.head $ parse parseSpace file
-  print space
+  --print space
   print $ printSpace space
   return ()
 
@@ -119,12 +119,11 @@ getEnvironmentAlgebra = Prog
   concat
   (\p cs -> [Alt p cs])
 
-
-
 readProgram :: String -> Program
 readProgram = Program . parser . alexScanTokens
 
 -- | Exercise 9
+headingToPos :: Heading -> (Int,Int)
 headingToPos h = case h of
   N -> (0,-1)
   E -> (1,0)
@@ -160,18 +159,18 @@ match p c = case p of
 step :: Environment -> ArrowState -> Step
 step env (ArrowState sp p h []) = Done sp p h
 step env state@(ArrowState sp p h (c:cs)) = case c of
-  CGo -> case fromMaybe Boundary (sp !? moveHeading p h) of
+  CGo       -> case fromMaybe Boundary (sp !? moveHeading p h) of
     c -> if (c == Asteroid) || (c == Boundary)
       then Ok $ ArrowState sp p h cs
       else Ok $ ArrowState sp (moveHeading p h) h cs
-  CTake -> Ok $ ArrowState (insert p Empty sp) p h cs
-  CMark -> Ok $ ArrowState (insert p Lambda sp) p h cs
-  CNothing -> Ok $ ArrowState sp p h cs
-  CTurn d -> Ok $ ArrowState sp p (rotateheading h d) cs
+  CTake     -> Ok $ ArrowState (insert p Empty sp) p h cs
+  CMark     -> Ok $ ArrowState (insert p Lambda sp) p h cs
+  CNothing  -> Ok $ ArrowState sp p h cs
+  CTurn d   -> Ok $ ArrowState sp p (rotateheading h d) cs
   CCase _ _ -> ccase env state
-  CIdent s -> case env !? s of
+  CIdent s  -> case env !? s of
     Just coms -> Ok $ ArrowState sp p h (coms ++ cs)
-    Nothing -> Fail $ s ++ " Not a command"
+    Nothing   -> Fail $ s ++ " Not a command"
 
 ccase :: Environment -> ArrowState -> Step
 ccase env (ArrowState sp pos h ((CCase d []):cs)) = Fail "non exhaustive pattern"
