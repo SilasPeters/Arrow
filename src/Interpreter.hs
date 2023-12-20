@@ -159,15 +159,15 @@ match p c = case p of
 step :: Environment -> ArrowState -> Step
 step env (ArrowState sp p h []) = Done sp p h
 step env state@(ArrowState sp p h (c:cs)) = case c of
-  CGo       -> case fromMaybe Boundary (sp !? moveHeading p h) of
-    c -> if (c == Asteroid) || (c == Boundary)
-      then Ok $ ArrowState sp p h cs
-      else Ok $ ArrowState sp (moveHeading p h) h cs
   CTake     -> Ok $ ArrowState (insert p Empty sp) p h cs
   CMark     -> Ok $ ArrowState (insert p Lambda sp) p h cs
   CNothing  -> Ok $ ArrowState sp p h cs
   CTurn d   -> Ok $ ArrowState sp p (rotateheading h d) cs
   CCase _ _ -> ccase env state
+  CGo       -> case fromMaybe Boundary (sp !? moveHeading p h) of
+    c -> if (c == Asteroid) || (c == Boundary)
+      then Ok $ ArrowState sp p h cs
+      else Ok $ ArrowState sp (moveHeading p h) h cs
   CIdent s  -> case env !? s of
     Just coms -> Ok $ ArrowState sp p h (coms ++ cs)
     Nothing   -> Fail $ s ++ " Not a command"
