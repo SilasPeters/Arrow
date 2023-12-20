@@ -27,7 +27,7 @@ type Pos       =  (Int, Int)
 type Space     =  Map Pos Contents
 
 add :: Pos -> Pos -> Pos
-add (x1, y1) (x2,y2) = (x1 + x2,y1 +y2)
+add (y1, x1) (y2,x2) = (y1 + y2,x1 +x2)
 
 -- | Parses a space file, such as the ones in the examples folder.
 parseSpace :: Parser Char Space
@@ -66,7 +66,7 @@ contentsMap = foldr (uncurry insert) e contentsTable
 
 testParseSpace :: IO()
 testParseSpace = do
-  file <- readFile ".\\examples\\Maze.space"
+  file <- readFile ".\\examples\\AddInput.space"
   let space = fst.head $ parse parseSpace file
   --print space
   print $ printSpace space
@@ -82,8 +82,8 @@ printSpace s = show size ++ "\n" ++ spaceLines s size size
 
 spaceLines :: Space -> Pos -> Pos -> String
 spaceLines s (0,0) _            = [contentsMap !  (s ! (0,0))]
-spaceLines s (0,y) size@(mx,_)  =  contentsMap !  (s ! (0,y)) : '\n' : spaceLines s (mx,y-1) size
-spaceLines s (x,y) size         =  contentsMap !  (s ! (x,y)) : spaceLines s (x-1,y) size
+spaceLines s (y,0) size@(_,mx)  =  spaceLines s (y-1,mx) size ++ "\n" ++ [contentsMap !  (s ! (y,0))]
+spaceLines s (y,x) size         =  spaceLines s (y,x-1) size ++ [contentsMap !  (s ! (y,x))] 
 
 -- These three should be defined by you
 type Ident = String
@@ -123,13 +123,20 @@ getEnvironmentAlgebra = Prog
 readProgram :: String -> Program
 readProgram = Program . parser . alexScanTokens
 
+test8 :: IO()
+test8 = do 
+  file <- readFile ".\\examples\\Add.arrow"
+  let env = toEnvironment file
+  print env
+  return ()
+
 -- | Exercise 9
 headingToPos :: Heading -> (Int,Int)
 headingToPos h = case h of
-  N -> (0,-1)
-  E -> (1,0)
-  S -> (0,1)
-  W -> (-1,0)
+  N -> (-1,0)
+  E -> (0,1)
+  S -> (1,0)
+  W -> (0,-1)
 
 rotateheading :: Heading -> Dir -> Heading
 rotateheading h d = case d of
@@ -160,15 +167,15 @@ match p c = case p of
 step :: Environment -> ArrowState -> Step
 step env (ArrowState sp p h []) = Done sp p h
 step env state@(ArrowState sp p h (c:cs)) = case c of
-  CGo       -> case fromMaybe Boundary (sp !? moveHeading p h) of
-    c -> if (c == Asteroid) || (c == Boundary)
-      then Ok $ ArrowState sp p h cs
-      else Ok $ ArrowState sp (moveHeading p h) h cs
   CTake     -> Ok $ ArrowState (insert p Empty sp) p h cs
   CMark     -> Ok $ ArrowState (insert p Lambda sp) p h cs
   CNothing  -> Ok $ ArrowState sp p h cs
   CTurn d   -> Ok $ ArrowState sp p (rotateheading h d) cs
   CCase _ _ -> ccase env state
+  CGo       -> case fromMaybe Boundary (sp !? moveHeading p h) of
+    c -> if (c == Asteroid) || (c == Boundary)
+      then Ok $ ArrowState sp p h cs
+      else Ok $ ArrowState sp (moveHeading p h) h cs
   CIdent s  -> case env !? s of
     Just coms -> Ok $ ArrowState sp p h (coms ++ cs)
     Nothing   -> Fail $ s ++ " Not a command"

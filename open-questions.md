@@ -30,3 +30,11 @@ Happy explains how they solve LR grammars:
 > symbol to appear on some stack, hence allowing the parse to complete.
 
 ## Exercise 10
+
+It is better to call recursive commands at the end of command sequance if you want to reduce the maximum stack size.
+First we observe that executing a command removes it, reducing the stack size by one.
+For non recursive commands this is all they do with the stack size. But recursive commands add a list of commands to the stack on execution. This list can be empty, or one, but often wil contain many commands. If 20 commands are called of wich one is a recursive command referencing 21 non recursive commands we can see a large difference in maximum stacksize depending on the order the commands are called. If the recursive command is called first the stack size is first reduced to 19, then 21 commands are added to gett a stack size of 40. If the recursize command is called last the stack only reaches a maximum size of 21.
+
+
+
+
