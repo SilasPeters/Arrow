@@ -122,6 +122,13 @@ getEnvironmentAlgebra = Prog
 readProgram :: String -> Program
 readProgram = undefined
 
+test8 :: IO()
+test8 = do 
+  file <- readFile ".\\examples\\Add.arrow"
+  let env = toEnvironment file
+  print env
+  return ()
+
 -- | Exercise 9
 headingToPos :: Heading -> (Int,Int)
 headingToPos h = case h of
