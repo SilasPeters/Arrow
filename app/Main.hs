@@ -39,13 +39,13 @@ batchAlgebra = IterateGameAlgebra
   (const $ return ())
 
 iterateProgram :: IterateProgramAlgebra r -> Environment -> ArrowState -> r
-iterateProgram (IterateGameAlgebra onSuccess printFail promptPro printStep) env arr
-  = iter (Ok arr) (step env arr)
+iterateProgram alg env arr
+  = iter alg (Ok arr) (step env arr)
   where
-    iter :: Step -> Step -> r -- previous step -> resulting Step -> r
-    iter _    s@Done { }  = onSuccess s
-    iter _    s@(Ok ar)   = promptPro >> printStep s >> iter (step env ar) s
-    iter prev s@(Fail er) = printFail prev er >> return s
+    iter :: IterateProgramAlgebra r -> Step -> Step -> r -- previous step -> resulting Step -> r
+    iter (IterateGameAlgebra onSuccess printFail promptPro printStep) _    s@Done { }  = onSuccess s
+    iter alg@(IterateGameAlgebra onSuccess printFail promptPro printStep) _    s@(Ok ar)   = promptPro >> printStep s >> iter alg (step env ar) s
+    iter alg@(IterateGameAlgebra onSuccess printFail promptPro printStep) prev s@(Fail er) = printFail prev er >> return s
 
 promptProgress :: IO ()
 promptProgress = putStr "Press any key to continue..." >> void getChar -- disregards any input
