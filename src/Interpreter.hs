@@ -27,7 +27,7 @@ type Pos       =  (Int, Int)
 type Space     =  Map Pos Contents
 
 add :: Pos -> Pos -> Pos
-add (x1, y1) (x2,y2) = (x1 + x2,y1 +y2)
+add (y1, x1) (y2,x2) = (y1 + y2,x1 +x2)
 
 -- | Parses a space file, such as the ones in the examples folder.
 parseSpace :: Parser Char Space
@@ -66,7 +66,7 @@ contentsMap = foldr (uncurry insert) e contentsTable
 
 testParseSpace :: IO()
 testParseSpace = do
-  file <- readFile ".\\examples\\Maze.space"
+  file <- readFile ".\\examples\\AddInput.space"
   let space = fst.head $ parse parseSpace file
   --print space
   print $ printSpace space
@@ -82,8 +82,8 @@ printSpace s = show size ++ "\n" ++ spaceLines s size size
 
 spaceLines :: Space -> Pos -> Pos -> String
 spaceLines s (0,0) _            = [contentsMap !  (s ! (0,0))]
-spaceLines s (0,y) size@(mx,_)  =  contentsMap !  (s ! (0,y)) : '\n' : spaceLines s (mx,y-1) size
-spaceLines s (x,y) size         =  contentsMap !  (s ! (x,y)) : spaceLines s (x-1,y) size
+spaceLines s (y,0) size@(_,mx)  =  spaceLines s (y-1,mx) size ++ "\n" ++ [contentsMap !  (s ! (y,0))]
+spaceLines s (y,x) size         =  spaceLines s (y,x-1) size ++ [contentsMap !  (s ! (y,x))] 
 
 -- These three should be defined by you
 type Ident = String
@@ -125,10 +125,10 @@ readProgram = undefined
 -- | Exercise 9
 headingToPos :: Heading -> (Int,Int)
 headingToPos h = case h of
-  N -> (0,-1)
-  E -> (1,0)
-  S -> (0,1)
-  W -> (-1,0)
+  N -> (-1,0)
+  E -> (0,1)
+  S -> (1,0)
+  W -> (0,-1)
 
 rotateheading :: Heading -> Dir -> Heading
 rotateheading h d = case d of
