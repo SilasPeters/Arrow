@@ -89,6 +89,7 @@ spaceLines s (x,y) size         =  contentsMap !  (s ! (x,y)) : spaceLines s (x-
 type Ident = String
 type Commands = [Command]
 data Heading = N | E | S | W
+  deriving (Show, Read)
 
 type Environment = Map Ident Commands
 
@@ -97,7 +98,7 @@ data ArrowState  =  ArrowState Space Pos Heading Stack
 
 data Step =  Done  Space Pos Heading
           |  Ok    ArrowState
-          |  Fail  String -- denk een soort error
+          |  Fail  String
 
 -- | Exercise 8
 toEnvironment :: String -> Environment
