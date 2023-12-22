@@ -9,46 +9,29 @@ import Parser
 import Control.Monad ( void )
 import ParseLib.Abstract ( parse )
 import Data.Char ( toUpper )
+import System.IO ( hFlush, stdout )
 
 -- Exercise 11
 interactive :: Environment -> ArrowState -> IO ()
-interactive = iterateProgram interactiveAlgebra
+interactive env = iter . Ok
+  where
+    iter :: Step -> IO ()
+    iter (Done sp _ _) = printBoard sp >> promptProgress >> putStrLn "Program terminated successfully!"
+    iter (Ok ar)       = printBoard (getSpace ar) >> promptProgress >> iter (step env ar)
+    iter (Fail er)     = putStrLn ("Program failed... Reason: " ++ er)
+
 
 batch :: Environment -> ArrowState -> (Space, Pos, Heading)
-batch = iterateProgram batchAlgebra
-
-data IterateProgramAlgebra r = IterateGameAlgebra
-  { onSuccess :: Step -> r
-  , onFail    :: Step -> String -> r -- here Step is the previous step
-  , promptPro :: IO ()
-  , printStep :: Step -> IO ()
-  }
-
-interactiveAlgebra :: IterateProgramAlgebra (IO ())
-interactiveAlgebra = IterateGameAlgebra
-  (\_ -> putStrLn "Program terminated successfully!")
-  (const $ putStrLn . (++) "Program failed... Reason: ")
-  promptProgress
-  (\(Ok (ArrowState sp _ _ _)) -> printBoard sp)
-
-batchAlgebra :: IterateProgramAlgebra (Space, Pos, Heading)
-batchAlgebra = IterateGameAlgebra
-  (\(Done sp po he)   -> (sp, po, he))
-  (\(Ok (ArrowState sp po he _)) _ -> (sp, po, he))
-  (return ())
-  (const $ return ())
-
-iterateProgram :: IterateProgramAlgebra r -> Environment -> ArrowState -> r
-iterateProgram alg env arr
-  = iter alg (Ok arr) (step env arr)
+batch env arr = (\(Done sp po he) -> (sp, po, he)) $ iter undefined (Ok arr)
   where
-    iter :: IterateProgramAlgebra r -> Step -> Step -> r -- previous step -> resulting Step -> r
-    iter (IterateGameAlgebra onSuccess printFail promptPro printStep) _    s@Done { }  = onSuccess s
-    iter alg@(IterateGameAlgebra onSuccess printFail promptPro printStep) _    s@(Ok ar)   = promptPro >> printStep s >> iter alg (step env ar) s
-    iter alg@(IterateGameAlgebra onSuccess printFail promptPro printStep) prev s@(Fail er) = printFail prev er >> return s
+    iter :: Step -> Step -> Step -- previous state -> current state -> resulting state
+    iter _                            s@(Ok ar)  = iter s (step env ar)
+    iter _                            s@Done { } = s
+    iter (Ok (ArrowState sp po he _)) s@Fail { } = Done sp po he -- Assumes that this is meant with "no more steps to be taken"
+
 
 promptProgress :: IO ()
-promptProgress = putStr "Press any key to continue..." >> void getChar -- disregards any input
+promptProgress = putStr "Press any key to continue... " >> hFlush stdout >> void getChar -- disregards any input
 
 printBoard :: Space -> IO () -- TODO print the whole Step if possible
 printBoard = putStrLn . printSpace
@@ -56,20 +39,20 @@ printBoard = putStrLn . printSpace
 
 
 promptInput :: String -> (String -> a) -> IO a
-promptInput str f = putStr str >> (f <$> getLine)
+promptInput str f = putStr str >> hFlush stdout >> (f <$> getLine)
 
 main :: IO ()
 main = do
-  spaceIn   <- promptInput ".space path (like \".\\examples\\Maze.space\"): " readFile -- TODO parse using 'run'
+  spaceIn   <- promptInput ".space path (like \"./examples/AddInput.space\"): " readFile -- TODO parse using 'run'
   space     <- fst . head . parse parseSpace <$> spaceIn
-  environIn <- promptInput ".program path (like \".\\examples\\Maze.space\"): " readFile
+  environIn <- promptInput ".program path (like \"./examples/Add.arrow\")   : " readFile
   environ   <- toEnvironment <$> environIn
-  pos       <- promptInput "What is the ship's initial position? (x,y) > " read -- TODO bounds check?
-  heading   <- promptInput "What is the ship's initial heading? [N|E|S|W]> " $ read . map toUpper
+  pos       <- promptInput "What is the ship's initial position? (x,y)    > " read -- TODO bounds check?
+  heading   <- promptInput "What is the ship's initial heading? [N|E|S|W] > " $ read . map toUpper
 
   let initialState = ArrowState space pos heading [CIdent "start"]
 
-  modeInput <- putStr "What mode would you like to try now? [interactive|batch]" >> getLine
+  modeInput <- promptInput "What mode would you like to try now? [interactive|batch] > " id
   case modeInput of
     "interactive" -> interactive environ initialState
     "batch"       -> print $ batch environ initialState
