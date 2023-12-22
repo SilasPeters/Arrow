@@ -28,6 +28,8 @@ type Space     =  Map Pos Contents
 
 add :: Pos -> Pos -> Pos
 add (y1, x1) (y2,x2) = (y1 + y2,x1 +x2)
+ -- NOTE THE ASSIGNMENT SEEMS TO CONFUSE X AND Y IN THE EXAMPLE OF PAGE 9,
+ -- AND THUS WE GLOBALLY TREAT X AS Y AND Y AS X.
 
 -- | Parses a space file, such as the ones in the examples folder.
 parseSpace :: Parser Char Space
@@ -168,21 +170,10 @@ match p c = case p of
   PBoundary -> c == Boundary
   PUnderscore -> True
 
-cmdStep :: IO String
-cmdStep = return $ unlines
-  [ "sf <- readFile \"./examples/AddInput.space\""
-  , "pf <- readFile \"./examples/Add.arrow\""
-  , "let spac = fst $ head $ parse parseSpace sf"
-  , "let envi = toEnvironment pf"
-  , "let arr = ArrowState spac (1,1) E [CTake]"
-  -- , "let (Ok arr) = step envi arr"
-  ]
-
-
 step :: Environment -> ArrowState -> Step
 step env (ArrowState sp p h []) = Done sp p h
 step env state@(ArrowState sp p h (c:cs)) = case c of
-  CTake     -> state `seq` Ok $ ArrowState (insert p Empty sp) p h cs
+  CTake     -> Ok $ ArrowState (insert p Empty sp) p h cs
   CMark     -> Ok $ ArrowState (insert p Lambda sp) p h cs
   CNothing  -> Ok $ ArrowState sp p h cs
   CTurn d   -> Ok $ ArrowState sp p (rotateheading h d) cs

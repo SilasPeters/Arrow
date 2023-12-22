@@ -16,8 +16,8 @@ interactive :: Environment -> ArrowState -> IO ()
 interactive env = iter . Ok
   where
     iter :: Step -> IO ()
-    iter (Done sp _ _) = printBoard sp >> promptProgress >> putStrLn "Program terminated successfully!"
-    iter (Ok ar)       = printBoard (getSpace ar) >> promptProgress >> iter (step env ar)
+    iter (Done sp _ _) = putStrLn "Program terminated successfully!" --TODO remove the prnt here
+    iter (Ok ar)       = printState ar >> promptProgress >> iter (step env ar)
     iter (Fail er)     = putStrLn ("Program failed... Reason: " ++ er)
 
 
@@ -31,12 +31,15 @@ batch env arr = (\(Done sp po he) -> (sp, po, he)) $ iter undefined (Ok arr)
 
 
 promptProgress :: IO ()
-promptProgress = putStr "Press any key to continue... " >> hFlush stdout >> void getChar -- disregards any input
+promptProgress = putStr "Press any key to continue... " >> hFlush stdout >> void getChar >> putStrLn "" -- disregards any input
 
-printBoard :: Space -> IO () -- TODO print the whole Step if possible
-printBoard = putStrLn . printSpace
-
-
+printState :: ArrowState -> IO () -- TODO print the whole Step if possible
+printState (ArrowState sp pos he cs) = do
+  putStrLn $ printSpace sp
+  putStrLn ""
+  putStr "Pos: " >> print pos
+  putStr "Heading: " >> print he
+  putStr "Call-stack: " >> print cs
 
 promptInput :: String -> (String -> a) -> IO a
 promptInput str f = putStr str >> hFlush stdout >> (f <$> getLine)

@@ -68,7 +68,7 @@ Dir :: { Dir }
 Alts :: { [Alt] }
      : {- empty -}  { [] }
      | Alt          { [$1] }
-     | Alts ';' Alt { $3 : $1 }
+     | Alt ';' Alts { $1 : $3 }
 
 Alt :: { Alt }
     : Pat '->' Cmds { Alt $1 $3 }
