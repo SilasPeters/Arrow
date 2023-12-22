@@ -16,7 +16,7 @@ interactive :: Environment -> ArrowState -> IO ()
 interactive env = iter . Ok
   where
     iter :: Step -> IO ()
-    iter (Done sp _ _) = putStrLn "Program terminated successfully!" --TODO remove the prnt here
+    iter (Done sp _ _) = putStrLn "Program terminated successfully!"
     iter (Ok ar)       = printState ar >> promptProgress >> iter (step env ar)
     iter (Fail er)     = putStrLn ("Program failed... Reason: " ++ er)
 
@@ -33,7 +33,7 @@ batch env arr = (\(Done sp po he) -> (sp, po, he)) $ iter undefined (Ok arr)
 promptProgress :: IO ()
 promptProgress = putStr "Press any key to continue... " >> hFlush stdout >> void getChar >> putStrLn "" -- disregards any input
 
-printState :: ArrowState -> IO () -- TODO print the whole Step if possible
+printState :: ArrowState -> IO ()
 printState (ArrowState sp pos he cs) = do
   putStrLn $ printSpace sp
   putStrLn ""
@@ -46,11 +46,11 @@ promptInput str f = putStr str >> hFlush stdout >> (f <$> getLine)
 
 main :: IO ()
 main = do
-  spaceIn   <- promptInput ".space path (like \"./examples/AddInput.space\"): " readFile -- TODO parse using 'run'
+  spaceIn   <- promptInput ".space path (like \"./examples/AddInput.space\"): " readFile
   space     <- fst . head . parse parseSpace <$> spaceIn
   environIn <- promptInput ".program path (like \"./examples/Add.arrow\")   : " readFile
   environ   <- toEnvironment <$> environIn
-  pos       <- promptInput "What is the ship's initial position? (x,y)    > " read -- TODO bounds check?
+  pos       <- promptInput "What is the ship's initial position? (x,y)    > " read
   heading   <- promptInput "What is the ship's initial heading? [N|E|S|W] > " $ read . map toUpper
 
   let initialState = ArrowState space pos heading [CIdent "start"]

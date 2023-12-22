@@ -20,21 +20,21 @@ foldProgram' :: ProgramAlgebra' p r c a -> Program -> p
 foldProgram' (Prog aprogram arule acommands acase acommand aalts aalt) = fp
   where
     fp (Program rs) = aprogram (frs rs)
-    frs = map (\(Rule n cs) -> arule n (fcs cs))
-    fcs cs = acommands (map fc cs)
+    frs             = map (\(Rule n cs) -> arule n (fcs cs))
+    fcs cs          = acommands (map fc cs)
     fc (CCase d as) = acase d (fas as)
-    fc c = acommand c
-    fas as = aalts (map fa as)
-    fa (Alt p cs) = aalt p (fcs cs)
+    fc c            = acommand c
+    fas as          = aalts (map fa as)
+    fa (Alt p cs)   = aalt p (fcs cs)
 
 data ProgramAlgebra' p r c a = Prog {
-    aProgram :: [r] -> p
-  , aRule :: String -> c -> r
+    aProgram  :: [r] -> p
+  , aRule     :: String -> c -> r
   , aCommands :: [c] -> c
-  , aCase :: Dir -> a -> c
-  , aCommand :: Command -> c
-  , aAlts :: [a] -> a
-  , aAlt :: Pat -> c -> a
+  , aCase     :: Dir -> a -> c
+  , aCommand  :: Command -> c
+  , aAlts     :: [a] -> a
+  , aAlt      :: Pat -> c -> a
   }
 
 
@@ -113,13 +113,13 @@ foldRule :: RuleAlgebra r -> Rule -> r
 foldRule alg (Rule s cmds) = alg s cmds
 
 data CommandAlgebra r = CommandAlgebra {
-   go :: r
-  ,take :: r
-  ,mark :: r
+   go      :: r
+  ,take    :: r
+  ,mark    :: r
   ,nothing :: r
-  ,turn :: Dir -> r
-  ,goCase :: Dir -> [Alt] -> r
-  ,ident :: String -> r
+  ,turn    :: Dir -> r
+  ,goCase  :: Dir -> [Alt] -> r
+  ,ident   :: String -> r
   }
 
 foldCommand :: CommandAlgebra r -> Command -> r
@@ -132,7 +132,7 @@ foldCommand alg (CCase dir alts) = goCase alg dir alts
 foldCommand alg (CIdent s)       = ident alg s
 
 data DirAlgebra r = DirAlgebra {
-   left :: r
+   left  :: r
   ,right :: r
   ,front :: r
   }
@@ -148,11 +148,11 @@ foldAlt :: Altgebra r -> Alt -> r
 foldAlt alg (Alt pat cmds) = alg pat cmds
 
 data PatAlgebra r = PatAlgebra {
-    empty :: r
-   ,lambda :: r
-   ,debris :: r
-   ,astroid :: r
-   ,boundary :: r
+    empty      :: r
+   ,lambda     :: r
+   ,debris     :: r
+   ,astroid    :: r
+   ,boundary   :: r
    ,underscore :: r
    }
 
@@ -181,9 +181,4 @@ startRuleExistsAlgebra = isJust . find ((==) "start" . name)
 
 startRuleExists :: Program -> Bool
 startRuleExists = foldProgram startRuleExistsAlgebra
-
-
-
-
-
 
