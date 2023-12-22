@@ -49,7 +49,7 @@ Rule :: { Rule }
 Cmds :: { [Command] }
      : {- empty -}  { [] }
      | Cmd          { [$1] }
-     | Cmds ',' Cmd { $3 : $1 }
+     | Cmd ',' Cmds { $1 : $3 }
 
 Cmd :: { Command }
     : go                   { CGo }
