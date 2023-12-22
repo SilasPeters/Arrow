@@ -100,10 +100,12 @@ data ArrowState  =  ArrowState
   , getHeading :: Heading
   , getStack   :: Stack
   }
+  deriving (Show)
                 
 data Step =  Done  Space Pos Heading
           |  Ok    ArrowState
           |  Fail  String
+  deriving (Show)
 
 -- | Exercise 8
 toEnvironment :: String -> Environment
@@ -113,7 +115,7 @@ toEnvironment s = if checkProgram program
   else
     undefined -- The assignment does not specify what to do in this case
   where
-    program = readProgram s
+    program = Program $ parser $ alexScanTokens s
 
 getEnvironmentAlgebra :: ProgramAlgebra' Environment (Ident, Commands) [Command] [Alt]
 getEnvironmentAlgebra = Prog
@@ -124,9 +126,6 @@ getEnvironmentAlgebra = Prog
   (: [])
   concat
   (\p cs -> [Alt p cs])
-
-readProgram :: String -> Program
-readProgram = Program . parser . alexScanTokens
 
 test8 :: IO()
 test8 = do 
@@ -169,10 +168,21 @@ match p c = case p of
   PBoundary -> c == Boundary
   PUnderscore -> True
 
+cmdStep :: IO String
+cmdStep = return $ unlines
+  [ "sf <- readFile \"./examples/AddInput.space\""
+  , "pf <- readFile \"./examples/Add.arrow\""
+  , "let spac = fst $ head $ parse parseSpace sf"
+  , "let envi = toEnvironment pf"
+  , "let arr = ArrowState spac (1,1) E [CTake]"
+  -- , "let (Ok arr) = step envi arr"
+  ]
+
+
 step :: Environment -> ArrowState -> Step
 step env (ArrowState sp p h []) = Done sp p h
 step env state@(ArrowState sp p h (c:cs)) = case c of
-  CTake     -> Ok $ ArrowState (insert p Empty sp) p h cs
+  CTake     -> state `seq` Ok $ ArrowState (insert p Empty sp) p h cs
   CMark     -> Ok $ ArrowState (insert p Lambda sp) p h cs
   CNothing  -> Ok $ ArrowState sp p h cs
   CTurn d   -> Ok $ ArrowState sp p (rotateheading h d) cs
