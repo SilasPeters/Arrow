@@ -94,8 +94,13 @@ data Heading = N | E | S | W
 type Environment = Map Ident Commands
 
 type Stack       =  Commands
-data ArrowState  =  ArrowState Space Pos Heading Stack
-
+data ArrowState  =  ArrowState
+  { getSpace   :: Space
+  , getPos     :: Pos
+  , getHeading :: Heading
+  , getStack   :: Stack
+  }
+                
 data Step =  Done  Space Pos Heading
           |  Ok    ArrowState
           |  Fail  String
