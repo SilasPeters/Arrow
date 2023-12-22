@@ -66,15 +66,6 @@ contentsMap = foldr (uncurry insert) e contentsTable
     e = Data.Map.empty
 
 
-testParseSpace :: IO()
-testParseSpace = do
-  file <- readFile ".\\examples\\AddInput.space"
-  let space = fst.head $ parse parseSpace file
-  --print space
-  print $ printSpace space
-  return ()
-
-
 -- Exercise 7
 printSpace :: Space -> String
 printSpace s = show size ++ "\n" ++ spaceLines s size size
@@ -85,7 +76,7 @@ printSpace s = show size ++ "\n" ++ spaceLines s size size
 spaceLines :: Space -> Pos -> Pos -> String
 spaceLines s (0,0) _            = [contentsMap !  (s ! (0,0))]
 spaceLines s (y,0) size@(_,mx)  =  spaceLines s (y-1,mx) size ++ "\n" ++ [contentsMap !  (s ! (y,0))]
-spaceLines s (y,x) size         =  spaceLines s (y,x-1) size ++ [contentsMap !  (s ! (y,x))] 
+spaceLines s (y,x) size         =  spaceLines s (y,x-1) size ++ [contentsMap !  (s ! (y,x))]
 
 -- These three should be defined by you
 type Ident = String
@@ -103,7 +94,7 @@ data ArrowState  =  ArrowState
   , getStack   :: Stack
   }
   deriving (Show)
-                
+
 data Step =  Done  Space Pos Heading
           |  Ok    ArrowState
           |  Fail  String
@@ -128,13 +119,6 @@ getEnvironmentAlgebra = Prog
   (: [])
   concat
   (\p cs -> [Alt p cs])
-
-test8 :: IO()
-test8 = do 
-  file <- readFile ".\\examples\\Add.arrow"
-  let env = toEnvironment file
-  print env
-  return ()
 
 -- | Exercise 9
 headingToPos :: Heading -> (Int,Int)
